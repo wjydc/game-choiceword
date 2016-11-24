@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>选字游戏</title>
+		<style type="text/css">
+		*{
+			margin: 0;
+			padding: 0;
+			font-size: 30px;
+		}
+			.big{
+				width: 500px;
+				height: 500px;
+				background-color: lightgray;
+				margin: 100px auto;
+				border-radius:5%;
+				overflow: hidden;
+			}
+			#remainT{
+				font-weight: bolder;
+				float: left;
+				margin: 10px 20px;
+			}
+			#scor{
+				float: right;
+				font-weight: bolder;
+				margin: 10px 20px;
+				
+			}
+			#bigtext{
+				width: 100px;
+				height: 100px;
+				text-align: center;
+				line-height: 100px;
+				border-radius: 50%;
+				background-color: gray;
+				margin: 50px auto;
+				font-size: 50px;
+			}
+			#midden{
+				text-align: center;
+				margin: 0 auto;
+				
+			}
+			ul{
+				width: 500px;
+				margin: 0 auto;
+				list-style-type: none;
+				margin-top: 100px;
+
+			}
+			li{	width: 60px;
+				height: 60px;
+				font-size: 50px;
+				float: left;
+				margin-left: 30px;
+				border:1px black solid;
+				border-radius: 50%;
+				text-align: center;
+				line-height: 60px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="big">
+			<div id="remainT">剩余时间：</div>  <!-- remain 剩余；逗留；残存-->
+			<div id="scor">完成：</div>
+			<div id="bigtext"></div>
+			<div id="midden">根据上面的字的颜色从下面选择正确的字，选择正确自动开始</div>
+
+			<ul id="uli">
+				<li></li>
+				<li></li>
+				<li></li>
+				<li></li>
+				<li></li>
+			</ul>
+		</div>
+	</body>
+	<script type="text/javascript">
+		var remaint=document.getElementById('remainT');
+		var scor=document.getElementById("scor");
+		var midden=document.getElementById("midden");
+
+		var bigtext=document.getElementById("bigtext");
+		var lis=document.getElementById("uli").getElementsByTagName('li');
+
+		//获取上面的大字
+		//1 建立字体数组和颜色数组
+		var word=["红","蓝","黄","绿","紫"];
+		var color=["red","blue","yellow","green","purple"];
+
+		//2 建立随机函数
+		function rand(min,max){
+			return parseInt(Math.random()*(max-min)+min);
+		}
+
+		// 3利用随机函数构造随机字和随机颜色
+				//主要通过下标来建立联系
+
+		var colorarr;
+
+		function bigword(){
+			colorarr=rand(0,color.length);
+			var fontarr=rand(0,word.length);
+
+			bigtext.innerHTML=word[fontarr];
+			bigtext.style.color=color[colorarr];
+
+		}
+		bigword();
+
+
+		
+			// 1建立随机数组，输出5个数字（同样为了作为下标，使字和颜色建立联系）
+			// 2建一个 空的变量arr 用来装载五个随机数
+			// 3通过判断去除数组中重复的数字
+
+		var arr=[];
+
+		function suiji(){
+				arr=[];
+				while(arr.length<5){
+					var empty=rand(0,5);
+					for (var i = 0; i <arr.length; i++){     //此处不可以直接写i<5
+						if (arr[i]==empty){
+							break;
+						}
+					}
+					if(i==arr.length){
+						arr.push(empty)
+					}
+				}
+				
+				return arr;       //此处若想弹出。必须在return之前，return后面的不会在执行
+			}
+		suiji();
+
+
+		// 获取下面的五个随机字组
+
+		// suiji()是一个函数，当做变量使用时，需要先存储为变量
+
+		function smallword(){
+
+			var smallfont=suiji();
+			var smallcolor=suiji();
+			
+			//for循环遍历每一个li
+			for (var i = 0; i < lis.length; i++) {
+				lis[i].innerHTML=word[smallfont[i]];
+				lis[i].style.color=color[smallcolor[i]];
+
+				lis[i].index=smallfont[i];  //小字的小标存起来
+			}
+		}
+		smallword();
+
+
+		//点击事件  需要将字的颜色和字联系起来，同样是通过寻找相同的下标
+		  // 所以我们需要先将小字的小字的小标存起来
+
+		  var num=0;
+
+		  	for (var i = 0; i < lis.length; i++) {
+		  		lis[i].onclick=function(){
+		  			if (colorarr==this.index&&timebol){
+		  				// alert("duile");          //此处用来检验是否正常运行
+		  				bigword();
+		  				smallword();
+		  				midden.style.display="none";
+		  				num++;
+		  				scor.innerHTML="完成"+num;
+		  				time();
+		  				
+		  			}
+		  		}
+		  	}
+
+		
+
+		  	//倒计时  运用定时器实现
+		  	var remaining=20;
+		  	var timer;
+		  	var timebol=true;    //此处是为了当时间小于0时，点击后不再继续执行
+		  	function time(){
+		  		clearInterval(timer);
+		  		timer=setInterval(function(){
+		  		remaining--;
+		  		 	remaint.innerHTML="剩余时间:"+remaining;
+		  		 	if (remaining<=0) {
+		  		 		clearInterval(timer);
+		  		 		gameover();
+		  		 		timebol=false;  //此处是为了当时间小于0时，点击后不再继续执行
+		  		 	}
+		  	},1000);
+		 
+
+		  	}
+		  		
+
+		  	// 游戏结束
+
+			function gameover(){
+				if (num<5) {
+					alert("眼瞎")
+				}
+				else if(num>5&&num<10){
+					alert("色弱")
+				}
+				else{
+					alert("你很棒")
+				}
+
+
+			}
+
+			
+	
+		
+
+
+
+
+
+
+	</script>
+		}
+</html>
